@@ -17,6 +17,7 @@ Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
  --gui          Grafik arayüz(Zenity)
  --tui          Terminal arayüz(whiptail)
  --liste        En çok kaynak kullanan süreçleri listele
+ --liste --bellek   Süreçleri bellek kullanımına göre sırala
  --ayar         Geçerli ayarları göster 
  --yardim       Yardim metnini göster
 EOF
@@ -33,8 +34,10 @@ case "$1" in
         echo "TUI kipi henüz eklenmedi."
         ;;
     --liste)
-        log_yaz "Süreç listesi istendi"
-        surecleri_listele
+        siralama="${2#--}"
+        siralama="${siralama:-cpu}"
+        log_yaz "Süreç listesi istendi (sıralama: $siralama)"
+        surecleri_listele "$siralama" || exit 1
         ;;
     --yardim|-h|"")
         yardim_metni

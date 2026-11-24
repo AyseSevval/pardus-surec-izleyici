@@ -3,8 +3,12 @@
 #Girdi noktası: Komut satırı seçeneğine bakar , uygun işleve yönlendirir.
 
 SURUM="0.1"
+# shellcheck source=lib/log.sh
 source "$(dirname "$0")/lib/log.sh"
+# shellcheck source=lib/ayar.sh
 source "$(dirname "$0")/lib/ayar.sh"  #ana betiğe ayar dosyası bağlandı
+# shellcheck source=lib/cekirdek.sh
+source "$(dirname "$0")/lib/cekirdek.sh"   #ana betiğe bağlandı
 yardim_metni(){
    cat <<EOF
 Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
@@ -30,7 +34,7 @@ case "$1" in
         ;;
     --liste)
         log_yaz "Süreç listesi istendi"
-        echo "Süreç listesi henüz eklenmedi."
+        surecleri_listele
         ;;
     --yardim|-h|"")
         yardim_metni

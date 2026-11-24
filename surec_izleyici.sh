@@ -4,6 +4,7 @@
 
 SURUM="0.1"
 source "$(dirname "$0")/lib/log.sh"
+source "$(dirname "$0")/lib/ayar.sh"  #ana betiğe ayar dosyası bağlandı
 yardim_metni(){
    cat <<EOF
 Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
@@ -11,12 +12,16 @@ Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
 
  --gui          Grafik arayüz(Zenity)
  --tui          Terminal arayüz(whiptail)
- --liste        En çok kaynak kullanan süreçleri listele 
+ --liste        En çok kaynak kullanan süreçleri listele
+ --ayar         Geçerli ayarları göster 
  --yardim       Yardim metnini göster
 EOF
 }
-
-case "$1" in 
+ayar_yukle || exit 1   #ayarlar her çalışmada yükleniyor
+case "$1" in
+    --ayar)
+        ayar_goster
+        ;;
     --gui)
         echo "GUI kipi henüz eklenmedi."
         ;;

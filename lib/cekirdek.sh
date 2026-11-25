@@ -22,3 +22,48 @@ surecleri_listele() {
         | awk 'NR==1 {printf "%-8s %-12s %6s %7s  %s\n", "PID", "KULLANICI", "CPU%", "BELLEK%", "KOMUT"; next}
                {printf "%-8s %-12s %6s %7s  %s\n", $1, $2, $3, $4, $5}'
 }
+# PID'i doğrular: sayı mı, süreç var mı, korunan bir süreç mi?
+pid_dogrula() {
+    local pid="$1"
+
+    if [[ ! "$pid" =~ ^[0-9]+$ ]]; then   #baştan sona sadece rakam mı diye kontrol eder.
+        hata_yaz "Geçersiz PID: '$pid' (sadece rakam girilmeli)"
+        return 1
+    fi
+
+    if [[ "$pid" -eq 1 || "$pid" -eq $$ ]]; then #betiğin kendi PID'i kendini yanlışlıkla  öldürmeyi önler 
+        hata_yaz "PID $pid korumalı, işlem yapılmadı"
+        return 1
+    fi
+
+    if [[ ! -d "/proc/$pid" ]]; then   #sadece çalışan süreçler için vardır.
+        hata_yaz "PID $pid ile çalışan bir süreç yok"
+        return 1
+    fi
+}
+
+surec_sonlandir() {
+    local pid="$1"
+    local ad cevap
+
+    pid_dogrula "$pid" || return 1
+
+    ad="$(ps -p "$pid" -o comm=)"
+    read -r -p "$pid ($ad) sonlandırılsın mı? (e/H): " cevap
+
+    case "$cevap" in
+        e|E)
+            if kill -TERM "$pid" 2>> "$HATA_DOSYASI"; then   #kill -TERM  sürece kapan der zorla öldürmez.
+                log_yaz "PID $pid ($ad) sonlandırıldı"
+                echo "Süreç sonlandırıldı."
+            else
+                hata_yaz "PID $pid sonlandırılamadı (yetki yetersiz olabilir)"
+                return 1
+            fi
+            ;;
+        *)
+            log_yaz "PID $pid sonlandırma iptal edildi"
+            echo "İptal edildi."
+            ;;
+    esac
+}

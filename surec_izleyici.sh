@@ -14,12 +14,13 @@ yardim_metni(){
 Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
 Çalıştırma biçimi: $0 SEÇENEK [ARGÜMAN]
 
- --gui          Grafik arayüz(Zenity)
- --tui          Terminal arayüz(whiptail)
- --liste        En çok kaynak kullanan süreçleri listele
- --liste --bellek   Süreçleri bellek kullanımına göre sırala
- --ayar         Geçerli ayarları göster 
- --yardim       Yardim metnini göster
+ --gui               Grafik arayüz(Zenity)
+ --tui               Terminal arayüz(whiptail)
+ --liste             En çok kaynak kullanan süreçleri listele
+ --liste --bellek    Süreçleri bellek kullanımına göre sırala
+ --ayar              Geçerli ayarları göster
+ --sonlandir PID     Seçilen süreci sonlandır (onay ister) 
+ --yardim            Yardim metnini göster
 EOF
 }
 ayar_yukle || exit 1   #ayarlar her çalışmada yükleniyor
@@ -32,6 +33,9 @@ case "$1" in
         ;;
     --tui)
         echo "TUI kipi henüz eklenmedi."
+        ;;
+    --sonlandir)
+        surec_sonlandir "$2" || exit 1 
         ;;
     --liste)
         siralama="${2#--}"

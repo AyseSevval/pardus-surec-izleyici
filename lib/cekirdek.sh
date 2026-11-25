@@ -67,3 +67,44 @@ surec_sonlandir() {
             ;;
     esac
 }
+# Sürece sinyal gönderir. Durdurma ve devam ettirme bu ortak fonksiyonu kullanır.
+surece_sinyal_gonder() {
+    local pid="$1" sinyal="$2" eylem="$3"
+    local ad
+
+    pid_dogrula "$pid" || return 1
+    ad="$(ps -p "$pid" -o comm=)"
+
+    if kill -"$sinyal" "$pid" 2>> "$HATA_DOSYASI"; then
+        log_yaz "PID $pid ($ad) $eylem"
+        echo "PID $pid ($ad) $eylem."
+    else
+        hata_yaz "PID $pid için işlem yapılamadı (yetki yetersiz olabilir)"
+        return 1
+    fi
+}
+
+surec_durdur()       { surece_sinyal_gonder "$1" STOP "durduruldu"; }
+surec_devam_ettir()  { surece_sinyal_gonder "$1" CONT "devam ettirildi"; }
+
+surec_oncelik_degistir() {
+    local pid="$1" deger="$2"
+    local ad
+
+    pid_dogrula "$pid" || return 1
+
+    if [[ ! "$deger" =~ ^-?[0-9]+$ ]] || (( deger < -20 || deger > 19 )); then
+        hata_yaz "Geçersiz öncelik: '$deger' (-20 ile 19 arasında tam sayı olmalı)"
+        return 1
+    fi
+
+    ad="$(ps -p "$pid" -o comm=)"
+    #Önceliği ayarlar.Sayı büyüdükçe süreç daha düşük öncelik alır.
+    if renice -n "$deger" -p "$pid" > /dev/null 2>> "$HATA_DOSYASI"; then   
+        log_yaz "PID $pid ($ad) önceliği $deger yapıldı"
+        echo "PID $pid ($ad) önceliği $deger yapıldı."
+    else
+        hata_yaz "PID $pid önceliği değiştirilemedi (yetki yetersiz olabilir)"
+        return 1
+    fi
+}

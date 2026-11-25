@@ -19,6 +19,9 @@ Pardus Süreç ve Kaynak İzleyici (sürüm $SURUM)
  --liste             En çok kaynak kullanan süreçleri listele
  --liste --bellek    Süreçleri bellek kullanımına göre sırala
  --ayar              Geçerli ayarları göster
+ --durdur PID           Süreci durdur (dondur)
+ --devam PID            Durdurulan süreci devam ettir
+ --oncelik PID DEĞER    Süreç önceliğini değiştir (-20 ile 19 arası)
  --sonlandir PID     Seçilen süreci sonlandır (onay ister) 
  --yardim            Yardim metnini göster
 EOF
@@ -36,6 +39,15 @@ case "$1" in
         ;;
     --sonlandir)
         surec_sonlandir "$2" || exit 1 
+        ;;
+     --durdur)
+        surec_durdur "$2" || exit 1
+        ;;
+    --devam)
+        surec_devam_ettir "$2" || exit 1
+        ;;
+    --oncelik)
+        surec_oncelik_degistir "$2" "$3" || exit 1
         ;;
     --liste)
         siralama="${2#--}"
